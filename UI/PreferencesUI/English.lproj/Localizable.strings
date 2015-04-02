@@ -12,6 +12,7 @@
 "Forward" = "Forward";
 "Password" = "Password";
 "Categories" = "Categories";
+"Appointments invitations" = "Appointments invitations";
 "Name" = "Name";
 "Color" = "Color";
 "Add" = "Add";
@@ -28,6 +29,7 @@
 "Days between responses :" = "Days between responses:";
 "Do not send responses to mailing lists" = "Do not send responses to mailing lists";
 "Disable auto reply on" = "Disable auto reply on";
+"Always send vacation message response" = "Always send vacation message response";
 "Please specify your message and your email addresses for which you want to enable auto reply."
 = "Please specify your message and your email addresses for which you want to enable auto reply.";
 "Your vacation message must not end with a single dot on a line." = "Your vacation message must not end with a single dot on a line.";
@@ -39,6 +41,9 @@
 "Keep a copy" = "Keep a copy";
 "Please specify an address to which you want to forward your messages."
 = "Please specify an address to which you want to forward your messages.";
+"You are not allowed to forward your messages to an external email address." = "You are not allowed to forward your messages to an external email address.";
+"You are not allowed to forward your messages to an internal email address." = "You are not allowed to forward your messages to an internal email address.";
+
 
 /* d & t */
 "Current Time Zone :" = "Current Time Zone:";
@@ -104,6 +109,10 @@
 "firstWeekOfYear_First4DayWeek" = "First 4-day week";
 "firstWeekOfYear_FirstFullWeek" = "First full week";
 
+"Prevent from being invited to appointments" = "Prevent from being invited to appointments";
+"White list for appointment invitations:" = "White list for appointment invitations:";
+"Contacts Names" = "Contacts Names";
+
 /* Default Calendar */
 "Default calendar :" = "Default calendar:";
 "selectedCalendar" = "Selected calendar";
@@ -130,15 +139,6 @@
 "Show subscribed mailboxes only" = "Show subscribed mailboxes only";
 "Sort messages by threads" = "Sort messages by threads";
 "When sending mail, add unknown recipients to my" = "When sending mail, add unknown recipients to my";
-"Check for new mail:" = "Check for new mail:";
-"messagecheck_manually" = "Manually";
-"messagecheck_every_minute" = "Every minute";
-"messagecheck_every_2_minutes" = "Every 2 minutes";
-"messagecheck_every_5_minutes" = "Every 5 minutes";
-"messagecheck_every_10_minutes" = "Every 10 minutes";
-"messagecheck_every_20_minutes" = "Every 20 minutes";
-"messagecheck_every_30_minutes" = "Every 30 minutes";
-"messagecheck_once_per_hour" = "Once per hour";
 
 "Forward messages:" = "Forward messages:";
 "messageforward_inline" = "Inline";
@@ -156,6 +156,9 @@
 "Display remote inline images" = "Display remote inline images";
 "displayremoteinlineimages_never" = "Never";
 "displayremoteinlineimages_always" = "Always";
+
+"Auto save every" = "Auto save every";
+"minutes" = "minutes";
 
 /* Contact */
 "Personal Address Book" = "Personal Address Book";
@@ -207,8 +210,8 @@
 "Contacts" = "Address Book";
 "Mail" = "Mail";
 "Last" = "Last used";
-"Default module :" = "Default module:";
-"SOGo version:" = "SOGo version:";
+"Default Module :" = "Default Module:";
+"SOGo Version :" = "SOGo Version:";
 
 "Language :" = "Language:";
 "choose" = "Choose ...";
@@ -235,6 +238,16 @@
 "Swedish" = "Svenska";
 "Ukrainian" = "Українська";
 "Welsh" = "Cymraeg";
+
+"Refresh View :" = "Refresh View:";
+"refreshview_manually" = "Manually";
+"refreshview_every_minute" = "Every minute";
+"refreshview_every_2_minutes" = "Every 2 minutes";
+"refreshview_every_5_minutes" = "Every 5 minutes";
+"refreshview_every_10_minutes" = "Every 10 minutes";
+"refreshview_every_20_minutes" = "Every 20 minutes";
+"refreshview_every_30_minutes" = "Every 30 minutes";
+"refreshview_once_per_hour" = "Once per hour";
 
 /* Return receipts */
 "When I receive a request for a return receipt:" = "When I receive a request for a return receipt:";

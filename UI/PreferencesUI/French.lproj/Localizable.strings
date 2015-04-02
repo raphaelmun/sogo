@@ -12,6 +12,7 @@
 "Forward" = "Transfert";
 "Password" = "Mot de passe";
 "Categories" = "Catégories";
+"Appointments invitations" = "Invitations";
 "Name" = "Nom";
 "Color" = "Couleur";
 "Add" = "Ajouter";
@@ -28,6 +29,7 @@
 "Days between responses :" = "Nombre de jours entre réponses :";
 "Do not send responses to mailing lists" = "Ne pas envoyer les réponses aux listes de diffusion";
 "Disable auto reply on" = "Désactiver la réponse automatique le";
+"Always send vacation message response" = "Toujours envoyer le message de vacances prolongées";
 "Please specify your message and your email addresses for which you want to enable auto reply."
 = "Veuillez définir un message et vos adresses pour lesquelles pour désirez activer une réponse automatique.";
 "Your vacation message must not end with a single dot on a line." = "Le message de vacances ne doit pas se terminer par une ligne ne contenant qu'un point.";
@@ -39,6 +41,9 @@
 "Keep a copy" = "Garder une copie";
 "Please specify an address to which you want to forward your messages."
 = "Veuillez définir une adresse à laquelle vous désirez transférer automatiquement vos nouveaux messages.";
+"You are not allowed to forward your messages to an external email address." = "Il est interdit de renvoyer vos messages vers une adresse externe.";
+"You are not allowed to forward your messages to an internal email address." = "Il est interdit de renvoyer vos messages vers une adresse interne.";
+
 
 /* d & t */
 "Current Time Zone :" = "Fuseau horaire en cours :";
@@ -97,13 +102,16 @@
 "Show time as busy outside working hours" = "Afficher comme occupé pendant les heures non-ouvrables";
 "First week of year :" = "Première semaine de l'année :";
 "Enable reminders for Calendar items" = "Activer les rappels pour les éléments du calendrier";
-"Play a sound when a reminder comes due"
-= "Émettre un signal sonore à l'échéance du rappel";
+"Play a sound when a reminder comes due" = "Émettre un signal sonore à l'échéance du rappel";
 "Default reminder :" = "Rappel par défaut :";
 
 "firstWeekOfYear_January1" = "Commence le 1er janvier";
 "firstWeekOfYear_First4DayWeek" = "Première semaine de 4 jours";
 "firstWeekOfYear_FirstFullWeek" = "Première semaine entière";
+
+"Prevent from being invited to appointments" = "Interdire de m'inviter à des rendez-vous";
+"White list for appointment invitations:" = "Liste blanche pour les invitations";
+"Contacts Names" = "Noms des contacts";
 
 /* Default Calendar */
 "Default calendar :" = "Calendrier par défaut :";
@@ -130,15 +138,7 @@
 "Label" = "Étiquette";
 "Show subscribed mailboxes only" = "Afficher seulement les abonnements";
 "Sort messages by threads" = "Grouper les discussions";
-"Check for new mail:" = "Vérifier l'arrivée de messages :";
-"messagecheck_manually" = "Manuellement";
-"messagecheck_every_minute" = "Chaque minute";
-"messagecheck_every_2_minutes" = "Toutes les 2 minutes";
-"messagecheck_every_5_minutes" = "Toutes les 5 minutes";
-"messagecheck_every_10_minutes" = "Toutes les 10 minutes";
-"messagecheck_every_20_minutes" = "Toutes les 20 minutes";
-"messagecheck_every_30_minutes" = "Toutes les 30 minutes";
-"messagecheck_once_per_hour" = "Une fois par heure";
+"When sending mail, add unknown recipients to my" = "Lors de l'envoi d'un message, ajouter les destinataires inconnus au carnet";
 
 "Forward messages:" = "Transférer les messages :";
 "messageforward_inline" = "intégrés";
@@ -157,9 +157,12 @@
 "displayremoteinlineimages_never" = "Jamais";
 "displayremoteinlineimages_always" = "Toujours";
 
+"Auto save every" = "Sauvegarde automatique toutes les";
+"minutes" = "minutes";
+
 /* Contact */
-"Personal Address Book" = "Carnet d'adresses personnel";
-"Collected Address Book" = "Carnet d'adresses collectées";
+"Personal Address Book" = "Adresses personnelles";
+"Collected Address Book" = "Adresses collectées";
 
 /* IMAP Accounts */
 "New Mail Account" = "Nouveau compte";
@@ -207,8 +210,8 @@
 "Contacts" = "Carnet d'adresses";
 "Mail" = "Courrier";
 "Last" = "Dernier utilisé";
-"Default module :" = "Module par défaut :";
-"SOGo version:" = "SOGo version :";
+"Default Module :" = "Module par défaut :";
+"SOGo Version :" = "Version :";
 
 "Language :" = "Langue :";
 "choose" = "Choisir ...";
@@ -236,6 +239,16 @@
 "Ukrainian" = "Українська";
 "Welsh" = "Cymraeg";
 
+"Refresh View :" = "Actualisation :";
+"refreshview_manually" = "Manuellement";
+"refreshview_every_minute" = "Chaque minute";
+"refreshview_every_2_minutes" = "Toutes les 2 minutes";
+"refreshview_every_5_minutes" = "Toutes les 5 minutes";
+"refreshview_every_10_minutes" = "Toutes les 10 minutes";
+"refreshview_every_20_minutes" = "Toutes les 20 minutes";
+"refreshview_every_30_minutes" = "Toutes les 30 minutes";
+"refreshview_once_per_hour" = "Une fois par heure";
+
 /* Return receipts */
 "When I receive a request for a return receipt:" = "Lors de la réception d'une demande d'accusé de réception :";
 "Never send a return receipt" = "Ne jamais envoyer d'accusé de réception";
@@ -253,6 +266,8 @@
 "Active" = "Actif";
 "Move Up" = "Remonter";
 "Move Down" = "Abaisser";
+"Connection error" = "Erreur de connexion";
+"Service temporarily unavailable" = "Service momentanément indisponible";
 
 /* Filters - UIxFilterEditor */
 "Filter name:" = "Nom du filtre :";

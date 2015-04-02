@@ -1,6 +1,6 @@
 /*
   Copyright (C) 2004-2005 SKYRIX Software AG
-  Copyright (C) 2008-2011 Inverse inc.
+  Copyright (C) 2008-2015 Inverse inc.
 
   This file is part of SOGo.
 
@@ -15,11 +15,12 @@
   License for more details.
 
   You should have received a copy of the GNU Lesser General Public
-  License along with OGo; see the file COPYING.  If not, write to the
+  License along with SOGo; see the file COPYING.  If not, write to the
   Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
   02111-1307, USA.
 */
 
+#import <Foundation/NSCalendarDate.h>
 #import <Foundation/NSCharacterSet.h>
 #import <Foundation/NSFileManager.h>
 #import <Foundation/NSKeyValueCoding.h>
@@ -229,7 +230,15 @@ static NSArray *infoKeys = nil;
 - (NSString *) localeCode
 {
   // WARNING : NSLocaleCode is not defined in <Foundation/NSUserDefaults.h>
-  return [locale objectForKey: @"NSLocaleCode"];
+  // Region subtag must be separated by a dash
+  NSMutableString *s = [NSMutableString stringWithString: [locale objectForKey: @"NSLocaleCode"]];
+
+  [s replaceOccurrencesOfString: @"_"
+                     withString: @"-"
+                        options: 0
+                          range: NSMakeRange(0, [s length])];
+  
+  return s;
 }
 
 - (void) setFrom: (NSString *) newFrom
@@ -435,7 +444,7 @@ static NSArray *infoKeys = nil;
 - (NSDictionary *) storeInfo
 {
   [self debugWithFormat:@"storing info ..."];
-  return [self valuesForKeys: infoKeys];
+  return [self dictionaryWithValuesForKeys: infoKeys];
 }
 
 /* contacts search */
@@ -636,16 +645,17 @@ static NSArray *infoKeys = nil;
 
 - (NSArray *) attachmentAttrs
 {
-  NSArray *a;
   SOGoDraftObject *co;
   SOGoMailObject *mail;
+  NSArray *a;
 
   co = [self clientObject];
   if (!attachmentAttrs || ![co imap4URL])
   {
       [co fetchInfo];
-      if ([co IMAP4ID] > -1)
+      if ((![co inReplyTo] || currentAttachment) && [co IMAP4ID] > -1)
         {
+          // When currentAttachment is defined, it means we just attached a new file to the mail
           mail = [[[SOGoMailObject alloc] initWithImap4URL: [co imap4URL] inContainer: [co container]] autorelease];
           a = [mail fetchFileAttachmentKeys];
           ASSIGN (attachmentAttrs, a);
@@ -807,7 +817,7 @@ static NSArray *infoKeys = nil;
       jsonResponse = [NSDictionary dictionaryWithObjectsAndKeys:
                                      @"success", @"status",
                                    [co sourceFolder], @"sourceFolder",
-                                        [NSNumber numberWithInt: [co IMAP4ID]], @"messageID",
+                                        [NSNumber numberWithInt: [co sourceIMAP4ID]], @"sourceMessageID",
                                    nil];
      
       recipients_count += [[co allRecipients] count];

@@ -1,6 +1,6 @@
 /* UIxPreferences.m - this file is part of SOGo
  *
- * Copyright (C) 2007-2014 Inverse inc.
+ * Copyright (C) 2007-2015 Inverse inc.
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  */
 
 #import <Foundation/NSCalendarDate.h>
+#import <Foundation/NSDictionary.h>
 #import <Foundation/NSPropertyList.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSTimeZone.h>
@@ -41,6 +42,7 @@
 #import <SOGo/NSString+Utilities.h>
 #import <SOGo/SOGoUser.h>
 #import <SOGo/SOGoUserDefaults.h>
+#import <SOGo/SOGoUserSettings.h>
 #import <SOGo/SOGoDomainDefaults.h>
 #import <SOGo/SOGoSieveManager.h>
 #import <SOGo/SOGoSystemDefaults.h>
@@ -74,7 +76,7 @@ static NSArray *reminderValues = nil;
   if (!reminderItems && !reminderValues)
     {
       reminderItems = [NSArray arrayWithObjects:
-			       @"5_MINUTES_BEFORE",
+                                 @"5_MINUTES_BEFORE",
 			       @"10_MINUTES_BEFORE",
 			       @"15_MINUTES_BEFORE",
 			       @"30_MINUTES_BEFORE",
@@ -90,7 +92,7 @@ static NSArray *reminderValues = nil;
 			       @"1_WEEK_BEFORE",
 			       nil];
       reminderValues = [NSArray arrayWithObjects:
-				@"-PT5M",
+                                  @"-PT5M",
 				@"-PT10M",
 				@"-PT15M",
 				@"-PT30M",
@@ -638,6 +640,48 @@ static NSArray *reminderValues = nil;
   return [userDefaults busyOffHours];
 }
 
+- (NSArray *) whiteList
+{
+  SOGoUserSettings *us;
+  NSMutableDictionary *moduleSettings;
+  NSArray *whiteList;
+  
+  us = [user userSettings];
+  moduleSettings = [us objectForKey: @"Calendar"];
+  whiteList = [moduleSettings objectForKey:@"PreventInvitationsWhitelist"];
+  return whiteList;
+}
+
+- (void) setWhiteList: (NSString *) whiteListString
+{
+  SOGoUserSettings *us;
+  NSMutableDictionary *moduleSettings;
+  
+  us = [user userSettings];
+  moduleSettings = [us objectForKey: @"Calendar"];
+  [moduleSettings setObject: whiteListString forKey: @"PreventInvitationsWhitelist"];
+  [us synchronize];
+}
+
+- (void) setPreventInvitations: (BOOL) preventInvitations
+{
+  SOGoUserSettings *us;
+  NSMutableDictionary *moduleSettings;
+  us = [user userSettings];
+  moduleSettings = [us objectForKey: @"Calendar"];
+  [moduleSettings setObject: [NSNumber numberWithBool: preventInvitations] forKey: @"PreventInvitations"];
+  [us synchronize];
+}
+
+- (BOOL) preventInvitations
+{
+  SOGoUserSettings *us;
+  NSMutableDictionary *moduleSettings;
+  us = [user userSettings];
+  moduleSettings = [us objectForKey: @"Calendar"];
+  return [[moduleSettings objectForKey: @"PreventInvitations"] boolValue];
+}
+
 - (NSArray *) firstWeekList
 {
   return [NSArray arrayWithObjects:
@@ -699,49 +743,53 @@ static NSArray *reminderValues = nil;
   /* We want all the SourceIDS */
   NSMutableArray *folders, *availableAddressBooksID, *availableAddressBooksName;
   SOGoParentFolder *contactFolders;
-
+  
   int i, count;
   BOOL collectedAlreadyExist;
-
+  
   contactFolders = [[[context activeUser] homeFolderInContext: context]
-                    lookupName: @"Contacts"
-                    inContext: context
-                    acquire: NO];
+                     lookupName: @"Contacts"
+                      inContext: context
+                        acquire: NO];
   folders = [NSMutableArray arrayWithArray: [contactFolders subFolders]];
   count = [folders count]-1;
-
+  
   // Inside this loop we remove all the public or shared addressbooks
   for (; count >= 0; count--)
-  {
-    if (![[folders objectAtIndex: count] isKindOfClass: [SOGoContactGCSFolder class]])
-      [folders removeObjectAtIndex: count];
-  }
-
+    {
+      if (![[folders objectAtIndex: count] isKindOfClass: [SOGoContactGCSFolder class]])
+        [folders removeObjectAtIndex: count];
+    }
+  
   // Parse the objects in order to have only the displayName of the addressbooks to be displayed on the preferences interface
   availableAddressBooksID = [NSMutableArray arrayWithCapacity: [folders count]];
   availableAddressBooksName = [NSMutableArray arrayWithCapacity: [folders count]];
   count = [folders count]-1;
   collectedAlreadyExist = NO;
-
-  for (i = 0; i <= count ; i++) {
-    [availableAddressBooksID addObject:[[folders objectAtIndex:i] realNameInContainer]];
-    [availableAddressBooksName addObject:[[folders objectAtIndex:i] displayName]];
-
-    if ([[availableAddressBooksID objectAtIndex:i] isEqualToString: @"collected"])
-      collectedAlreadyExist = YES;
-  }
+  
+  for (i = 0; i <= count ; i++)
+    {
+      [availableAddressBooksID addObject:[[folders objectAtIndex:i] realNameInContainer]];
+      [availableAddressBooksName addObject:[[folders objectAtIndex:i] displayName]];
+      
+      if ([[availableAddressBooksID objectAtIndex:i] isEqualToString: @"collected"])
+        collectedAlreadyExist = YES;
+    }
   // Create the dictionary for the next function : itemAddressBookText.
   if (!addressBooksIDWithDisplayName)
-    addressBooksIDWithDisplayName = [[NSMutableDictionary alloc] initWithObjects:availableAddressBooksName
-                                                                         forKeys:availableAddressBooksID];
-    if (!collectedAlreadyExist)
+    {
+      addressBooksIDWithDisplayName = [[NSMutableDictionary alloc] initWithObjects:availableAddressBooksName
+                                                                           forKeys:availableAddressBooksID];
+    }
+  if (!collectedAlreadyExist)
     {
       [availableAddressBooksID addObject: @"collected"];
-      [addressBooksIDWithDisplayName setObject: [self labelForKey: @"Collected Address Book"] forKey: @"collected"];
+      [addressBooksIDWithDisplayName setObject: [self labelForKey: @"Collected Address Book"]  forKey: @"collected"];
     }
-
+  
   return availableAddressBooksID;
 }
+
 - (NSString *) itemAddressBookText
 {
   return [addressBooksIDWithDisplayName objectForKey: item];
@@ -757,15 +805,15 @@ static NSArray *reminderValues = nil;
   [userDefaults setSelectedAddressBook: newSelectedAddressBook];
 }
 
-- (NSArray *) messageCheckList
+- (NSArray *) refreshViewList
 {
   NSArray *intervalsList;
-  NSMutableArray *messageCheckList;
+  NSMutableArray *refreshViewList;
   NSString *value;
   int count, max, interval;
 
-  intervalsList = [[user domainDefaults] mailPollingIntervals];
-  messageCheckList = [NSMutableArray arrayWithObjects: @"manually", nil];
+  intervalsList = [[user domainDefaults] refreshViewIntervals];
+  refreshViewList = [NSMutableArray arrayWithObjects: @"manually", nil];
   max = [intervalsList count];
   for (count = 0; count < max; count++)
     {
@@ -784,26 +832,25 @@ static NSArray *reminderValues = nil;
           value = nil;
         }
       if (value)
-        [messageCheckList addObject: value];
+        [refreshViewList addObject: value];
     }
 
-  return messageCheckList;
+  return refreshViewList;
 }
 
-- (NSString *) itemMessageCheckText
+- (NSString *) itemRefreshViewCheckText
 {
-  return [self labelForKey:
-                 [NSString stringWithFormat: @"messagecheck_%@", item]];
+  return [self labelForKey: [NSString stringWithFormat: @"refreshview_%@", item]];
 }
 
-- (NSString *) userMessageCheck
+- (NSString *) userRefreshViewCheck
 {
-  return [userDefaults mailMessageCheck];
+  return [userDefaults refreshViewCheck];
 }
 
-- (void) setUserMessageCheck: (NSString *) newMessageCheck
+- (void) setUserRefreshViewCheck: (NSString *) newRefreshViewCheck
 {
-  [userDefaults setMailMessageCheck: newMessageCheck];
+  [userDefaults setRefreshViewCheck: newRefreshViewCheck];
 }
 
 - (NSArray *) messageForwardingList
@@ -912,6 +959,16 @@ static NSArray *reminderValues = nil;
   [userDefaults setMailDisplayRemoteInlineImages: newType];
 }
 
+- (void) setAutoSave: (NSString *) theValue
+{
+  [userDefaults setMailAutoSave: theValue];
+}
+
+- (NSString *) autoSave
+{
+  return [userDefaults mailAutoSave];
+}
+
 /* mail autoreply (vacation) */
 
 - (BOOL) isSieveScriptsEnabled
@@ -929,7 +986,7 @@ static NSArray *reminderValues = nil;
         capabilities = [[self sieveClient] capabilities];
       else
         capabilities = [NSArray array];
-        [capabilities retain];
+      [capabilities retain];
     }
 
   return [capabilities jsonRepresentation];
@@ -1070,6 +1127,30 @@ static NSArray *reminderValues = nil;
   return ignore;
 }
 
+//
+// See http://sogo.nu/bugs/view.php?id=2332 for details
+//
+- (void) setAlwaysSend: (BOOL) ignoreLists
+{
+  [vacationOptions setObject: [NSNumber numberWithBool: ignoreLists]
+		      forKey: @"alwaysSend"];
+}
+
+- (BOOL) alwaysSend
+{
+  NSNumber *obj;
+  BOOL ignore;
+
+  obj = [vacationOptions objectForKey: @"alwaysSend"];
+
+  if (obj == nil)
+    ignore = NO; // defaults to NO
+  else
+    ignore = [obj boolValue];
+
+  return ignore;
+}
+
 - (BOOL) enableVacationEndDate
 {
   return [[vacationOptions objectForKey: @"endDateEnabled"] boolValue];
@@ -1157,6 +1238,15 @@ static NSArray *reminderValues = nil;
   return [[forwardOptions objectForKey: @"keepCopy"] boolValue];
 }
 
+- (NSString *) forwardConstraints
+{
+  SOGoDomainDefaults *dd;
+  
+  dd = [[context activeUser] domainDefaults];
+
+  return [NSString stringWithFormat: @"%d", [dd forwardConstraints]];
+}
+
 /* main */
 
 - (NSArray *) availableModules
@@ -1220,12 +1310,12 @@ static NSArray *reminderValues = nil;
   SOGoSieveManager *manager;
 
   if (!client)
-  {
-    folder = [[self clientObject] mailAccountsFolder: @"Mail" inContext: context];
-    account = [folder lookupName: @"0" inContext: context acquire: NO];
-    manager = [SOGoSieveManager sieveManagerForUser: [context activeUser]];
-    client = [[manager clientForAccount: account] retain];
-  }
+    {
+      folder = [[self clientObject] mailAccountsFolder: @"Mail" inContext: context];
+      account = [folder lookupName: @"0" inContext: context acquire: NO];
+      manager = [SOGoSieveManager sieveManagerForUser: [context activeUser]];
+      client = [[manager clientForAccount: account] retain];
+    }
 
   return client;
 }
@@ -1264,6 +1354,8 @@ static NSArray *reminderValues = nil;
           account = [folder lookupName: @"0" inContext: context acquire: NO];
 
           if ([account updateFilters])
+            // If Sieve is not enabled, the SOGoSieveManager will immediatly return a positive answer
+            // See [SOGoSieveManager updateFiltersForAccount:withUsername:andPassword:]
             results = [self responseWithStatus: 200
                          andJSONRepresentation: [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool:hasChanged], @"hasChanged", nil]];
 
@@ -1271,9 +1363,9 @@ static NSArray *reminderValues = nil;
             results = [self responseWithStatus: 502
                          andJSONRepresentation: [NSDictionary dictionaryWithObjectsAndKeys: @"Connection error", @"textStatus", nil]];
         }
-    else
-      results = [self responseWithStatus: 503
-                   andJSONRepresentation: [NSDictionary dictionaryWithObjectsAndKeys: @"Service temporarily unavailable", @"textStatus", nil]];
+      else
+        results = [self responseWithStatus: 503
+                     andJSONRepresentation: [NSDictionary dictionaryWithObjectsAndKeys: @"Service temporarily unavailable", @"textStatus", nil]];
     }
   else
     results = self;

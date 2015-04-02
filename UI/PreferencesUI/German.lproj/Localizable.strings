@@ -12,6 +12,7 @@
 "Forward" = "Weiterleitung";
 "Password" = "Passwort";
 "Categories" = "Kategorien";
+"Appointments invitations" = "Einladungen zu Terminen";
 "Name" = "Name";
 "Color" = "Farbe";
 "Add" = "Hinzufügen";
@@ -22,12 +23,13 @@
 
 /* vacation (auto-reply) */
 "Enable vacation auto reply" = "Automatische Abwesenheitsnachricht aktivieren";
-"Auto reply message :" = "Folgende Nachricht wird automatisch einmal an jeden Absender gesendet:";
+"Auto reply message :" = "Mit folgender Nachricht auf jede eingehende E-Mail antworten:";
 "Email addresses (separated by commas) :" = "E-Mail-Adressen (getrennt durch Kommata):";
 "Add default email addresses" = "Standardadresse hinzufügen";
 "Days between responses :" = "Tage zwischen automatischen Abwesenheitsnachrichten:";
 "Do not send responses to mailing lists" = "Keine automatischen Abwesenheitsnachrichten an Mailinglisten senden";
 "Disable auto reply on" = "Automatische Abwesenheitsnachricht abschalten am";
+"Always send vacation message response" = "Immer Abwesenheitsmeldung senden";
 "Please specify your message and your email addresses for which you want to enable auto reply."
 = "Bitte ihren Nachrichtentext und ihre E-Mail-Adressen angeben, für die automatische Abwesenheitsnachrichten aktiviert werden sollen.";
 "Your vacation message must not end with a single dot on a line." = "Ihre Abwesenheitsnachricht darf nicht mit einem alleinstehenden Punkt in einer Zeile enden.";
@@ -39,6 +41,9 @@
 "Keep a copy" = "Eine Kopie behalten";
 "Please specify an address to which you want to forward your messages."
 = "Bitte Adresse angeben, an die Ihre Nachrichten weitergeleitet werden sollen.";
+"You are not allowed to forward your messages to an external email address." = "Es ist Ihnen nicht erlaubt, Ihre Nachrichten an externe E-Mail-Adressen weiterzuleiten.";
+"You are not allowed to forward your messages to an internal email address." = "Es ist Ihnen nicht erlaubt, Ihre Nachrichten an interne E-Mail-Adressen weiterzuleiten.";
+
 
 /* d & t */
 "Current Time Zone :" = "Aktuelle Zeitzone:";
@@ -97,13 +102,16 @@
 "Show time as busy outside working hours" = "Zeiten außerhalb der Arbeitszeit als belegt anzeigen";
 "First week of year :" = "Erste Woche des Jahres:";
 "Enable reminders for Calendar items" = "Termin- und Aufgabenerinnerungen aktivieren";
-"Play a sound when a reminder comes due"
-= "Akustisches Signal zur Terminerinnerung";
+"Play a sound when a reminder comes due" = "Akustisches Signal zur Terminerinnerung";
 "Default reminder :" = "Standard Terminerinnerung:";
 
 "firstWeekOfYear_January1" = "Beginnt am 1. Januar";
 "firstWeekOfYear_First4DayWeek" = "Erste 4 Tage Woche";
 "firstWeekOfYear_FirstFullWeek" = "Erste ganze Woche";
+
+"Prevent from being invited to appointments" = "Verhindere, dass ich zu Terminen eingeladen werde";
+"White list for appointment invitations:" = "White-Liste für Termineinladungen:";
+"Contacts Names" = "Kontaktnamen";
 
 /* Default Calendar */
 "Default calendar :" = "Standardkalender";
@@ -130,15 +138,7 @@
 "Label" = "Schlagwort";
 "Show subscribed mailboxes only" = "Nur abonnierte Ordner anzeigen";
 "Sort messages by threads" = "Nachrichten nach Thema sortieren";
-"Check for new mail:" = "Auf neue Nachrichten prüfen:";
-"messagecheck_manually" = "Manuell";
-"messagecheck_every_minute" = "Minütlich";
-"messagecheck_every_2_minutes" = "Alle 2 Minuten";
-"messagecheck_every_5_minutes" = "Alle 5 Minuten";
-"messagecheck_every_10_minutes" = "Alle 10 Minuten";
-"messagecheck_every_20_minutes" = "Alle 20 Minuten";
-"messagecheck_every_30_minutes" = "Alle 30 Minuten";
-"messagecheck_once_per_hour" = "Stündlich";
+"When sending mail, add unknown recipients to my" = "Unbekannte Empfänger meiner E-Mails hinzufügen zu";
 
 "Forward messages:" = "Nachrichten weiterleiten:";
 "messageforward_inline" = "Eingebunden";
@@ -156,6 +156,13 @@
 "Display remote inline images" = "Entfernte eingebettete Bilder anzeigen";
 "displayremoteinlineimages_never" = "Niemals";
 "displayremoteinlineimages_always" = "Immer";
+
+"Auto save every" = "Automatisch speichern alle";
+"minutes" = "Minuten";
+
+/* Contact */
+"Personal Address Book" = "Persönliches Adressbuch";
+"Collected Address Book" = "Gesammelte Adressen";
 
 /* IMAP Accounts */
 "New Mail Account" = "Neues E-Mail-Konto";
@@ -203,9 +210,10 @@
 "Contacts" = "Adressbuch";
 "Mail" = "E-Mail";
 "Last" = "Zuletzt benutztes";
-"Default module :" = "Standard Modul:";
+"Default Module :" = "Standard Modul:";
+"SOGo Version :" = "SOGo Version:";
 
-"Language :" = "Sprache :";
+"Language :" = "Sprache:";
 "choose" = "Auswählen ...";
 "Arabic" = "العربية";
 "Catalan" = "Català";
@@ -231,6 +239,16 @@
 "Ukrainian" = "Українська";
 "Welsh" = "Cymraeg";
 
+"Refresh View :" = "Ansicht aktualisieren:";
+"refreshview_manually" = "Manuell";
+"refreshview_every_minute" = "Minütlich";
+"refreshview_every_2_minutes" = "Alle 2 Minuten";
+"refreshview_every_5_minutes" = "Alle 5 Minuten";
+"refreshview_every_10_minutes" = "Alle 10 Minuten";
+"refreshview_every_20_minutes" = "Alle 20 Minuten";
+"refreshview_every_30_minutes" = "Alle 30 Minuten";
+"refreshview_once_per_hour" = "Stündlich";
+
 /* Return receipts */
 "When I receive a request for a return receipt:" = "Wenn ich die Anforderung einer Empfangsbestätigung erhalte:";
 "Never send a return receipt" = "Niemals eine Bestätigung senden";
@@ -248,6 +266,8 @@
 "Active" = "Aktiv";
 "Move Up" = "Nach oben";
 "Move Down" = "Nach unten";
+"Connection error" = "Verbindungsfehler";
+"Service temporarily unavailable" = "Dienst vorübergehend nicht verfügbar";
 
 /* Filters - UIxFilterEditor */
 "Filter name:" = "Filtername:";
@@ -303,7 +323,7 @@
 "Password change failed - Password is too short" = "Passwortänderung fehlgeschlagen - Passwort ist zu kurz";
 "Password change failed - Password is too young" = "Passwortänderung fehlgeschlagen - zu frühe Passwortänderung";
 "Password change failed - Password is in history" = "Passwortänderung fehlgeschlagen - Passwort wurde zuvor verwendet";
-"Unhandled policy error: %{0}" = "Unbearbeiteter Vorgabenfehler: %{0}";
-"Unhandled error response" = "Unbearbeitete Fehlerantwort";
+"Unhandled policy error: %{0}" = "Unerwarteter Fehler bei Passwortänderung: %{0}";
+"Unhandled error response" = "Unerwarteter Fehler";
 "Password change is not supported." = "Passwortänderung wird nicht unterstützt.";
-"Unhandled HTTP error code: %{0}" = "Unbearbeiteter HTTP-Fehlercode: %{0}";
+"Unhandled HTTP error code: %{0}" = "Unerwarteter HTTP-Fehlercode: %{0}";

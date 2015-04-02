@@ -1,6 +1,6 @@
 /* UIxComponentEditor.h - this file is part of SOGo
  *
- * Copyright (C) 2006-2013 Inverse inc.
+ * Copyright (C) 2006-2015 Inverse inc.
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@
   id item;
   id attendee;
 
+  NSString *rsvpURL;
   NSString *saveURL;
   NSMutableArray *calendarList;
   NSDictionary *organizerProfile;
@@ -62,7 +63,7 @@
   NSString *dateFormat;
 
   NSMutableDictionary *jsonAttendees;
-
+  
   NSString *reminder;
   NSString *reminderQuantity;
   NSString *reminderUnit;
@@ -176,7 +177,6 @@
 ////////////////////////////////// JUNK ////////////////////////////////////////
 
 /* access */
-- (BOOL) isMyComponent;
 - (BOOL) canEditComponent;
 - (unsigned int) firstDayOfWeek;
 
@@ -184,6 +184,8 @@
 - (NSString *) completeURIForMethod: (NSString *) _method;
 - (BOOL) isWriteableClientObject;
 - (NSException *) validateObjectForStatusChange;
+
++ (NSArray *) reminderValues;
 
 @end
 

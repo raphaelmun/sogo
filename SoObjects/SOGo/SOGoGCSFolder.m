@@ -214,18 +214,17 @@ static NSArray *childRecordFields = nil;
 
 - (void) setFolderPropertyValue: (id) theValue
                      inCategory: (NSString *) theKey
+                       settings: (SOGoUserSettings *) theSettings
 {
-  SOGoUserSettings *settings;
   NSMutableDictionary *folderSettings, *values;
   NSString *module;
 
-  settings = [[context activeUser] userSettings];
   module = [container nameInContainer];
-  folderSettings = [settings objectForKey: module];
+  folderSettings = [theSettings objectForKey: module];
   if (!folderSettings)
     {
       folderSettings = [NSMutableDictionary dictionary];
-      [settings setObject: folderSettings forKey: module];
+      [theSettings setObject: folderSettings forKey: module];
     }
   values = [folderSettings objectForKey: theKey];
   if (theValue)
@@ -247,7 +246,19 @@ static NSArray *childRecordFields = nil;
 	[folderSettings removeObjectForKey: theKey];
     }
 
-  [settings synchronize];
+  [theSettings synchronize];
+}
+
+- (void) setFolderPropertyValue: (id) theValue
+                     inCategory: (NSString *) theKey
+{
+  SOGoUserSettings *settings;
+
+  settings = [[context activeUser] userSettings];
+  
+  [self setFolderPropertyValue: theValue
+                    inCategory: theKey
+                      settings: settings];
 }
 
 - (id) folderPropertyValueInCategory: (NSString *) theKey
@@ -271,71 +282,93 @@ static NSArray *childRecordFields = nil;
   return value;
 }
 
-- (void) _setDisplayNameFromRow: (NSDictionary *) row
+- (NSString *) _displayNameFromRow: (NSDictionary *) row
 {
-  NSString *primaryDN;
-  NSDictionary *ownerIdentity;
-
+  NSString *name, *primaryDN;
+  
+  name = nil;
   primaryDN = [row objectForKey: @"c_foldername"];
+  
   if ([primaryDN length])
     {
-      displayName = [NSMutableString new];
       if ([primaryDN isEqualToString: [container defaultFolderName]])
-	[displayName appendString: [self labelForKey: primaryDN
-                                           inContext: context]];
+        name = [self labelForKey: primaryDN
+                       inContext: context];
       else
-	[displayName appendString: primaryDN];
-
-      if (!activeUserIsOwner)
-	{
-	  // We MUST NOT use SOGoUser instances here (by calling -primaryIdentity)
-	  // as it'll load user defaults and user settings which is _very costly_
-	  // since it involves JSON parsing and database requests
-	  ownerIdentity = [[SOGoUserManager sharedUserManager]
-			    contactInfosForUserWithUIDorEmail: owner];
-
-	  [displayName appendFormat: @" (%@ <%@>)", [ownerIdentity objectForKey: @"cn"],
-		       [ownerIdentity objectForKey: @"c_email"]];
-	}
+        name = primaryDN;
     }
+
+  return name;
 }
 
 /* This method fetches the display name defined by the owner, but is also the
-   fallback when a subscriber has not redefined the display name yet in his
+   fallback when a subscriber has not redefined the display name yet in their
    environment. */
-- (void) _fetchDisplayNameFromOwner
+- (NSString *) _displayNameFromOwner
 {
   GCSChannelManager *cm;
   EOAdaptorChannel *fc;
   NSURL *folderLocation;
-  NSString *sql;
+  NSString *name, *sql;
   NSArray *attrs;
   NSDictionary *row;
 
+  name = nil;
   cm = [GCSChannelManager defaultChannelManager];
-  folderLocation
-    = [[GCSFolderManager defaultFolderManager] folderInfoLocation];
+  folderLocation = [[GCSFolderManager defaultFolderManager] folderInfoLocation];
   fc = [cm acquireOpenChannelForURL: folderLocation];
   if (fc)
     {
-      sql
-	= [NSString stringWithFormat: (@"SELECT c_foldername FROM %@"
-				       @" WHERE c_path = '%@'"),
-		    [folderLocation gcsTableName], ocsPath];
-      [fc evaluateExpressionX: sql];
-      attrs = [fc describeResults: NO];
-      row = [fc fetchAttributes: attrs withZone: NULL];
-      if (row)
-	[self _setDisplayNameFromRow: row];
-      [fc cancelFetch];
-      [cm releaseChannel: fc];
+      // We use an exception handler here in case the database is down when
+      // performing the query. This could have unexpected results.
+      NS_DURING
+        {
+          sql = [NSString stringWithFormat: (@"SELECT c_foldername FROM %@"
+                                             @" WHERE c_path = '%@'"),
+                          [folderLocation gcsTableName], ocsPath];
+          [fc evaluateExpressionX: sql];
+          attrs = [fc describeResults: NO];
+          row = [fc fetchAttributes: attrs withZone: NULL];
+          if (row)
+            name = [self _displayNameFromRow: row];
+          [fc cancelFetch];
+          [cm releaseChannel: fc];
+        }
+      NS_HANDLER;
+      NS_ENDHANDLER;
     }
+
+  return name;
 }
 
-- (void) _fetchDisplayNameFromSubscriber
+- (NSString *) _displayNameFromSubscriber
 {
-  displayName = [self folderPropertyValueInCategory: @"FolderDisplayNames"];
-  [displayName retain];
+  NSDictionary *ownerIdentity, *folderSubscriptionValues;
+  NSString *name, *displayNameFormat;
+  SOGoDomainDefaults *dd;
+
+  name = [self folderPropertyValueInCategory: @"FolderDisplayNames"];
+  if (!name)
+    {
+      name = [self _displayNameFromOwner];
+
+      // We MUST NOT use SOGoUser instances here (by calling -primaryIdentity)
+      // as it'll load user defaults and user settings which is _very costly_
+      // since it involves JSON parsing and database requests
+      ownerIdentity = [[SOGoUserManager sharedUserManager]
+                                contactInfosForUserWithUIDorEmail: owner];
+
+      folderSubscriptionValues = [[NSDictionary alloc] initWithObjectsAndKeys: name, @"FolderName",
+                                                  [ownerIdentity objectForKey: @"cn"], @"UserName",
+                                                  [ownerIdentity objectForKey: @"c_email"], @"Email", nil];
+
+      dd = [[context activeUser] domainDefaults];
+      displayNameFormat = [dd subscriptionFolderFormat];
+
+      name = [folderSubscriptionValues keysWithFormat: displayNameFormat];
+    }
+
+  return name;
 }
 
 - (NSString *) displayName
@@ -343,13 +376,14 @@ static NSArray *childRecordFields = nil;
   if (!displayName)
     {
       if (activeUserIsOwner)
-        [self _fetchDisplayNameFromOwner];
+        displayName = [self _displayNameFromOwner];
       else
         {
-          [self _fetchDisplayNameFromSubscriber];
+          displayName = [self _displayNameFromSubscriber];
           if (!displayName)
-            [self _fetchDisplayNameFromOwner];
+            displayName = [self _displayNameFromOwner];
         }
+      [displayName retain];
     }
 
   return displayName;
@@ -838,6 +872,7 @@ static NSArray *childRecordFields = nil;
 
 - (BOOL) subscribeUserOrGroup: (NSString *) theIdentifier
 		     reallyDo: (BOOL) reallyDo
+                     response: (WOResponse *) theResponse
 {
   NSMutableDictionary *moduleSettings, *folderShowAlarms;
   NSMutableArray *folderSubscription;
@@ -850,7 +885,7 @@ static NSArray *childRecordFields = nil;
   int i;
 
   dict = [[SOGoUserManager sharedUserManager] contactInfosForUserWithUIDorEmail: theIdentifier];
-  
+
   if ([[dict objectForKey: @"isGroup"] boolValue])
     {
       SOGoGroup *aGroup;
@@ -860,7 +895,7 @@ static NSArray *childRecordFields = nil;
       allUsers = [NSMutableArray arrayWithArray: [aGroup members]];
 
       // We remove the active user from the group (if present) in order to
-      // not subscribe him to his own resource!
+      // not subscribe him to their own resource!
       [allUsers removeObject: [context activeUser]];
     }
   else
@@ -872,8 +907,12 @@ static NSArray *childRecordFields = nil;
       else
 	allUsers = [NSArray array];
     }
-  
+
   rc = NO;
+
+  // This is consumed by SOGo Integrator during folder subscription since v24.0.6
+  if (theResponse)
+    [theResponse appendContentString: [self displayName]];
 
   for (i = 0; i < [allUsers count]; i++)
     {
@@ -887,8 +926,7 @@ static NSArray *childRecordFields = nil;
           [us setObject: moduleSettings forKey: [container nameInContainer]];
         }
 
-      folderSubscription
-        = [moduleSettings objectForKey: @"SubscribedFolders"];
+      folderSubscription = [moduleSettings objectForKey: @"SubscribedFolders"];
       subscriptionPointer = [self folderReference];
       
       folderShowAlarms = [moduleSettings objectForKey: @"FolderShowAlarms"];
@@ -910,6 +948,10 @@ static NSArray *childRecordFields = nil;
               [moduleSettings setObject: folderShowAlarms
                                  forKey: @"FolderShowAlarms"];
             }
+
+          [self setFolderPropertyValue: [self _displayNameFromSubscriber]
+                            inCategory: @"FolderDisplayNames"
+                              settings: us];
 
           [folderSubscription addObjectUniquely: subscriptionPointer];
 	  
@@ -969,7 +1011,7 @@ static NSArray *childRecordFields = nil;
   response = [context response];
   [response setHeader: @"text/plain; charset=utf-8"
     forKey: @"Content-Type"];
-  [response setStatus: 204];
+  [response setStatus: 200];
 
   currentUser = [context activeUser];
   delegatedUsers = [self _parseDAVDelegatedUsers];
@@ -984,7 +1026,8 @@ static NSArray *childRecordFields = nil;
              create contention on GDNC. */
           for (count = 0; count < max; count++)
             [self subscribeUserOrGroup: [delegatedUsers objectAtIndex: count]
-			      reallyDo: reallyDo];
+			      reallyDo: reallyDo
+                              response: response];
         }
       else
         {
@@ -1003,7 +1046,9 @@ static NSArray *childRecordFields = nil;
                       @"You cannot (un)subscribe to a folder that you own!"];
         }
       else
-        [self subscribeUserOrGroup: userLogin reallyDo: reallyDo];
+        [self subscribeUserOrGroup: userLogin
+                          reallyDo: reallyDo
+                          response: response];
     }
 
   return response;
@@ -1120,7 +1165,14 @@ static NSArray *childRecordFields = nil;
   int syncTokenInt;
 
   fields = [NSMutableArray arrayWithObjects: @"c_name", @"c_component",
-         @"c_creationdate", @"c_lastmodified", nil];
+                           @"c_creationdate", @"c_lastmodified", nil];
+
+  if ([[self folderType] isEqualToString: @"Appointment"])
+    {
+      [fields addObject: @"c_enddate"];
+      [fields addObject: @"c_cycleenddate"];
+    }
+
   addFields = [[properties allValues] objectEnumerator];
   while ((currentField = [addFields nextObject]))
     if ([currentField length])
@@ -1136,7 +1188,9 @@ static NSArray *childRecordFields = nil;
       if (theStartDate)
         {
           EOQualifier *sinceDateQualifier = [EOQualifier qualifierWithQualifierFormat:
-                                                           @"c_creationdate > %d", (int)[theStartDate timeIntervalSince1970]];
+                                                           @"(c_enddate > %d OR c_enddate = NULL) OR (c_iscycle = 1 and (c_cycleenddate > %d OR c_cycleenddate = NULL))",
+                                                         (int)[theStartDate timeIntervalSince1970],
+                                                         (int)[theStartDate timeIntervalSince1970]];
           
           qualifier = [[EOAndQualifier alloc] initWithQualifiers: sinceDateQualifier, qualifier,
                                               nil];
@@ -1149,7 +1203,7 @@ static NSArray *childRecordFields = nil;
       qualifier = [EOQualifier qualifierWithQualifierFormat:
                                  @"c_lastmodified > %d and c_deleted == 1",
                                syncTokenInt];
-      fields = [NSMutableArray arrayWithObjects: @"c_name", @"c_deleted", nil];
+      fields = [NSMutableArray arrayWithObjects: @"c_name", @"c_lastmodified", @"c_deleted", nil];
       [mRecords addObjectsFromArray: [self _fetchFields: fields
                                           withQualifier: qualifier
                                           ignoreDeleted: NO]];
@@ -1166,7 +1220,9 @@ static NSArray *childRecordFields = nil;
       if (theStartDate)
         {
           EOQualifier *sinceDateQualifier = [EOQualifier qualifierWithQualifierFormat:
-                                                           @"c_creationdate > %d", (int)[theStartDate timeIntervalSince1970]];
+                                                           @"(c_enddate > %d OR c_enddate = NULL) OR (c_iscycle = 1 and (c_cycleenddate > %d OR c_cycleenddate = NULL))",
+                                                         (int)[theStartDate timeIntervalSince1970],
+                                                         (int)[theStartDate timeIntervalSince1970]];
           
           qualifier = [[EOAndQualifier alloc] initWithQualifiers: sinceDateQualifier, qualifier,
                                               nil];
@@ -2033,8 +2089,12 @@ static NSArray *childRecordFields = nil;
       nodeTag = [self _nodeTag: *property];
       if (*currentValue)
 	{
+          // Make sure the sent value is sanitized.
+          NSString *sanitizedValue;
+          
+          sanitizedValue = [*currentValue safeString];
 	  propertyValue = [NSString stringWithFormat: @"<%@>%@</%@>",
-				    nodeTag, *currentValue, nodeTag];
+				    nodeTag, sanitizedValue, nodeTag];
 	  propDict = properties200;
 	}
       else

@@ -12,6 +12,7 @@
 "Forward" = "Edelleenlähetys";
 "Password" = "Salasana";
 "Categories" = "Luokat";
+"Appointments invitations" = "Kalenterikutsut";
 "Name" = "Nimi";
 "Color" = "Väri";
 "Add" = "Lisää";
@@ -28,6 +29,7 @@
 "Days between responses :" = "Päivät vastausten välillä:";
 "Do not send responses to mailing lists" = "Älä lähetä vastauksia postituslistoille";
 "Disable auto reply on" = "Poista automaattivastaus käytöstä";
+"Always send vacation message response" = "Lähetä lomaviestivastaus aina";
 "Please specify your message and your email addresses for which you want to enable auto reply."
 = "Ole hyvä ja määritä viesti sekä sähköpostiosoitteet joille haluat aktivoida automaattivastauksen.";
 "Your vacation message must not end with a single dot on a line." = "Lomaviestisi ei saa päättyä yksittäiseen pisteeseen viimeisellä rivillä.";
@@ -39,6 +41,9 @@
 "Keep a copy" = "Pidä kopio";
 "Please specify an address to which you want to forward your messages."
 = "Ole hyvä ja määritä sähköpostiosoite johon haluat edelleenlähettää viestisi.";
+"You are not allowed to forward your messages to an external email address." = "Sinulla ei ole lupaa välittää viestejä ulkoiseen sähköpostiosoitteeseen.";
+"You are not allowed to forward your messages to an internal email address." = "Sinulla ei ole lupaa välittää viestejä sisäiseen sähköpostiosoitteeseen.";
+
 
 /* d & t */
 "Current Time Zone :" = "Nykyinen aikavyöhyke:";
@@ -97,13 +102,16 @@
 "Show time as busy outside working hours" = "Näytä työajan ulkopuolinen aika varattuna";
 "First week of year :" = "Vuoden ensimmäinen viikko:";
 "Enable reminders for Calendar items" = "Ota käyttöön kalenterimerkintöjen muistuttajat";
-"Play a sound when a reminder comes due"
-= "Soita äänimerkki kun muistuttaja aktivoituu";
+"Play a sound when a reminder comes due" = "Soita äänimerkki kun muistuttaja aktivoituu";
 "Default reminder :" = "Oletusmuistuttaja";
 
 "firstWeekOfYear_January1" = "Alkaa Tammikuun 1.";
 "firstWeekOfYear_First4DayWeek" = "Ensimmäinen nelipäiväinen viikko";
 "firstWeekOfYear_FirstFullWeek" = "Ensimmäinen täysi viikko";
+
+"Prevent from being invited to appointments" = "Estä tapaamiskutsut";
+"White list for appointment invitations:" = "Valkoinen lista kalenterikutsuille:";
+"Contacts Names" = "Yhteystietojen Nimet";
 
 /* Default Calendar */
 "Default calendar :" = "Oletuskalenteri";
@@ -130,15 +138,7 @@
 "Label" = "Otsikoi";
 "Show subscribed mailboxes only" = "Näytä vain tilatut sähköpostikansiot";
 "Sort messages by threads" = "Järjestä viestit ketjuiksi";
-"Check for new mail:" = "Hae uudet sähköpostit";
-"messagecheck_manually" = "Manuaalisesti";
-"messagecheck_every_minute" = "Joka minuutti";
-"messagecheck_every_2_minutes" = "Joka toinen minuutti";
-"messagecheck_every_5_minutes" = "Viiden minuutin välein";
-"messagecheck_every_10_minutes" = "10 minuutin välein";
-"messagecheck_every_20_minutes" = "20 minuutin välein";
-"messagecheck_every_30_minutes" = "Puolen tunnin välein";
-"messagecheck_once_per_hour" = "Kerran tunnissa ";
+"When sending mail, add unknown recipients to my" = "Postia lähettäessä lisää tuntemattomat vastaanottajat";
 
 "Forward messages:" = "Edelleenlähetä viestit:";
 "messageforward_inline" = "Tekstisisällössä";
@@ -156,6 +156,13 @@
 "Display remote inline images" = "Näytä etäsisällön kuvat";
 "displayremoteinlineimages_never" = "Ei koskaan";
 "displayremoteinlineimages_always" = "Aina";
+
+"Auto save every" = "Tallenna automaattisesti";
+"minutes" = "minuutin välein";
+
+/* Contact */
+"Personal Address Book" = "Henkilökohtainen osoitekirja";
+"Collected Address Book" = "Keratty osoitekirja";
 
 /* IMAP Accounts */
 "New Mail Account" = "Uusi sähköpostitili";
@@ -203,7 +210,8 @@
 "Contacts" = "Osoitekirja";
 "Mail" = "Sähköposti";
 "Last" = "Viimeksi käytetty";
-"Default module :" = "Oletusmoduli:";
+"Default Module :" = "Oletusmoduli:";
+"SOGo Version :" = "SOGo versio:";
 
 "Language :" = "Kieli:";
 "choose" = "Valitse...";
@@ -231,6 +239,16 @@
 "Ukrainian" = "Українська";
 "Welsh" = "Cymraeg";
 
+"Refresh View :" = "Päivitä näkymä:";
+"refreshview_manually" = "Manuaalisesti";
+"refreshview_every_minute" = "Joka minuutti";
+"refreshview_every_2_minutes" = "Joka toinen minuutti";
+"refreshview_every_5_minutes" = "Viiden minuutin välein";
+"refreshview_every_10_minutes" = "10 minuutin välein";
+"refreshview_every_20_minutes" = "20 minuutin välein";
+"refreshview_every_30_minutes" = "Puolen tunnin välein";
+"refreshview_once_per_hour" = "Kerran tunnissa ";
+
 /* Return receipts */
 "When I receive a request for a return receipt:" = "Kun saan kuittauspyynnön:";
 "Never send a return receipt" = "Alä koskaan lähetä kuittausta";
@@ -248,6 +266,8 @@
 "Active" = "Aktiivinen";
 "Move Up" = "Siirry ylös";
 "Move Down" = "Siirry alas";
+"Connection error" = "Yhteysvirhe";
+"Service temporarily unavailable" = "Palvelu tilapäisesti pois käytöstä";
 
 /* Filters - UIxFilterEditor */
 "Filter name:" = "Suodattimen nimi:";

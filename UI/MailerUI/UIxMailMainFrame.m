@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2007-2013 Inverse inc.
+  Copyright (C) 2007-2014 Inverse inc.
 
   This file is part of SOGo.
 
@@ -117,6 +117,17 @@
   names = [accounts objectsForKey: @"name" notFoundMarker: nil];
 
   return [names jsonRepresentation];
+}
+
+- (NSString *) userNames
+{
+  NSArray *accounts, *userNames;
+  
+  accounts = [[self clientObject] mailAccounts];
+  userNames = [accounts objectsForKey: @"userName" notFoundMarker: nil];
+  
+  return [userNames jsonRepresentation];
+  
 }
 
 - (NSString *) pageFormURL

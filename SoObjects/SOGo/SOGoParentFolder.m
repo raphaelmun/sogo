@@ -1,8 +1,6 @@
 /* SOGoParentFolder.m - this file is part of SOGo
  *
- * Copyright (C) 2006-2009 Inverse inc.
- *
- * Author: Wolfgang Sourdeau <wsourdeau@inverse.ca>
+ * Copyright (C) 2006-2015 Inverse inc.
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -164,34 +162,45 @@ static SoSecurityManager *sm = nil;
   NSString *folderName;
   SOGoGCSFolder *folder;
   SOGoUser *folderOwner;
-
+  SOGoUserDefaults *ud;
+  
   roles = [[context activeUser] rolesForObject: self inContext: context];
   folderOwner = [SOGoUser userWithLogin: [self ownerInContext: context]];
-
+  
+  
   // We autocreate the calendars if the user is the owner, a superuser or
   // if it's a resource as we won't necessarily want to login as a resource
   // in order to create its database tables.
   // FolderType is an enum where 0 = Personal and 1 = collected
   if ([roles containsObject: SoRole_Owner] ||
       (folderOwner && [folderOwner isResource]))
+  {
+    if (folderType == SOGoPersonalFolder)
     {
-      if (folderType == SOGoPersonalFolder)
-      {
-        folderName = @"personal";
-        folder = [subFolderClass objectWithName: folderName inContainer: self];
-        [folder setDisplayName: [self defaultFolderName]];
-      }
-      else if (folderType == SOGoCollectedFolder)
-      {
-        folderName = @"collected";
-        folder = [subFolderClass objectWithName: folderName inContainer: self];
-        [folder setDisplayName: [self collectedFolderName]];
-      }
+      folderName = @"personal";
+      folder = [subFolderClass objectWithName: folderName inContainer: self];
+      [folder setDisplayName: [self defaultFolderName]];
       [folder setOCSPath: [NSString stringWithFormat: @"%@/%@", OCSPath, folderName]];
       
       if ([folder create])
-        [subFolders setObject: folder forKey: folderName];
+      [subFolders setObject: folder forKey: folderName];
     }
+    else if (folderType == SOGoCollectedFolder)
+    {
+      ud = [[context activeUser] userDefaults];
+      if ([ud mailAddOutgoingAddresses]) {
+        folderName = @"collected";
+        folder = [subFolderClass objectWithName: folderName inContainer: self];
+        [folder setDisplayName: [self collectedFolderName]];
+        [folder setOCSPath: [NSString stringWithFormat: @"%@/%@", OCSPath, folderName]];
+        
+        if ([folder create])
+          [subFolders setObject: folder forKey: folderName];
+        
+        [ud setSelectedAddressBook:folderName];
+      }
+    }
+  }
 }
 
 - (NSException *) fetchSpecialFolders: (NSString *) sql
@@ -283,6 +292,18 @@ static SoSecurityManager *sm = nil;
   subscribedFolder
     = [subFolderClass folderWithSubscriptionReference: sourceKey
 		      inContainer: self];
+
+  // We check with -ocsFolderForPath if the folder also exists in the database.
+  // This is important because user A could delete folder X, and user B has subscribed to it.
+  // If the "default roles" are enabled for calendars/address books, -validatePersmission:.. will
+  // work (grabbing the default role) and the deleted resource will be incorrectly returned.
+  //
+  // FIXME - 2015/01/29 - this fix (24c6c8c91d421594bd51f07904d4cd3911cd187c) was reverted. Normally, we should add
+  // [subscribedFolder ocsFolderForPath: [subscribedFolder ocsPath]] to check the existence of the folder but it causes
+  // massive SQL traffic.
+  // 
+  // The proper fix would be to check upon login and only upon login if GCS folders that we're subscribed to are still existent.
+  //
   if (subscribedFolder
       && ![sm validatePermission: SOGoPerm_AccessObject
 			onObject: subscribedFolder

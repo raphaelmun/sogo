@@ -169,6 +169,11 @@
   DESTROY(originalCalendar);
 }
 
+- (Class *) parsingClass
+{
+  return [iCalCalendar class];
+}
+
 - (NSString *) davContentType
 {
   return @"text/calendar";
@@ -639,8 +644,8 @@
   // As much as we can, we try to use c_name == c_uid in order
   // to avoid tricky scenarios with some CalDAV clients. For example,
   // if Alice invites Bob (both use SOGo) and Bob accepts the invitation
-  // using Lightning before having refreshed his calendar, he'll end up
-  // with a duplicate of the event in his database tables.
+  // using Lightning before having refreshed their calendar, they'll end up
+  // with a duplicate of the event in their database tables.
   if (isNew)
     {
       newUid = nameInContainer;
@@ -662,7 +667,7 @@
 
 - (NSException *) saveCalendar: (iCalCalendar *) newCalendar
 {
-  [self saveContentString: [newCalendar versitString]];
+  [super saveComponent: newCalendar];
 
   return nil;
 }
@@ -1193,7 +1198,19 @@
 				 [NSString stringWithFormat: @"%@.ics", newUID]
 			       inContainer: newFolder];
 
-  return [newComponent saveContentString: [calendar versitString]];
+  return [newComponent saveCalendar: calendar];
+}
+
+- (NSException *) moveToFolder: (SOGoGCSFolder *) newFolder
+{
+  NSException *ex;
+
+  ex = [self copyToFolder: newFolder];
+
+  if (!ex)
+    ex = [self delete];
+
+  return ex;
 }
 
 #warning Should we not remove the concept of Organizer and Participant roles?

@@ -12,6 +12,7 @@
 "Forward" = "Desvío";
 "Password" = "Contraseña";
 "Categories" = "Categorías";
+"Appointments invitations" = "Avisos de Eventos";
 "Name" = "Nombre";
 "Color" = "Color";
 "Add" = "Añadir";
@@ -97,13 +98,16 @@
 "Show time as busy outside working hours" = "Mostrar tiempo ocupado fuera del horario laboral";
 "First week of year :" = "Primera semana del año: ";
 "Enable reminders for Calendar items" = "Habilitar recordatorios para elementos del calendario";
-"Play a sound when a reminder comes due"
-= "Señal acústica para los recordatorios";
+"Play a sound when a reminder comes due" = "Señal acústica para los recordatorios";
 "Default reminder :" = "Recordatorio por defecto: ";
 
 "firstWeekOfYear_January1" = "Empieza el 1 de enero";
 "firstWeekOfYear_First4DayWeek" = "Primera semana del año de 4 días";
 "firstWeekOfYear_FirstFullWeek" = "Primera semana del año completa";
+
+"Prevent from being invited to appointments" = "Evitar invitaciones a eventos";
+"White list for appointment invitations:" = "Lista blanca de invitaciones a eventos:";
+"Contacts Names" = "Nombres de Contacto";
 
 /* Default Calendar */
 "Default calendar :" = "Calendario por defecto";
@@ -130,15 +134,7 @@
 "Label" = "Etiquetar";
 "Show subscribed mailboxes only" = "Mostrar sólo buzones suscritos";
 "Sort messages by threads" = "Ordenar mensajes por temas";
-"Check for new mail:" = "Comprobar correo nuevo: ";
-"messagecheck_manually" = "Manualmente";
-"messagecheck_every_minute" = "Cada minuto";
-"messagecheck_every_2_minutes" = "Cada 2 minutos";
-"messagecheck_every_5_minutes" = "Cada 5 minutos";
-"messagecheck_every_10_minutes" = "Cada 10 minutos";
-"messagecheck_every_20_minutes" = "Cada 20 minutos";
-"messagecheck_every_30_minutes" = "Cada 30 minutos";
-"messagecheck_once_per_hour" = "Cada hora";
+"When sending mail, add unknown recipients to my" = "Cuando se envía correo, añade destinatarios desconocidos a mi";
 
 "Forward messages:" = "Reenviar mensajes:";
 "messageforward_inline" = "Incorporado";
@@ -156,6 +152,13 @@
 "Display remote inline images" = "Enseña imágenes remotas de forma integrada";
 "displayremoteinlineimages_never" = "Nunca";
 "displayremoteinlineimages_always" = "Siempre";
+
+"Auto save every" = "Guardar automáticamente cada";
+"minutes" = "minutos";
+
+/* Contact */
+"Personal Address Book" = "Libreta de direcciones personal";
+"Collected Address Book" = "Libreta de direcciones recogidas";
 
 /* IMAP Accounts */
 "New Mail Account" = "Nueva Cuenta de Correo";
@@ -203,7 +206,8 @@
 "Contacts" = "Libreta de direcciones";
 "Mail" = "Correo";
 "Last" = "Ultimo usado";
-"Default module :" = "Módulo por defecto :";
+"Default Module :" = "Módulo por defecto :";
+"SOGo Version :" = "Versión de SOGo:";
 
 "Language :" = "Idioma :";
 "choose" = "Elija ...";
@@ -231,6 +235,16 @@
 "Ukrainian" = "Українська";
 "Welsh" = "Cymraeg";
 
+"Refresh View :" = "Refrescar Vista:";
+"refreshview_manually" = "Manualmente";
+"refreshview_every_minute" = "Cada minuto";
+"refreshview_every_2_minutes" = "Cada 2 minutos";
+"refreshview_every_5_minutes" = "Cada 5 minutos";
+"refreshview_every_10_minutes" = "Cada 10 minutos";
+"refreshview_every_20_minutes" = "Cada 20 minutos";
+"refreshview_every_30_minutes" = "Cada 30 minutos";
+"refreshview_once_per_hour" = "Cada hora";
+
 /* Return receipts */
 "When I receive a request for a return receipt:" = "Cuando reciba una petición de un acuse de recibo:";
 "Never send a return receipt" = "Nunca enviar un acuse de recibo";
@@ -248,6 +262,8 @@
 "Active" = "Activo";
 "Move Up" = "Subir";
 "Move Down" = "Bajar";
+"Connection error" = "Error al conectar";
+"Service temporarily unavailable" = "Servicio temporalmente no disponible";
 
 /* Filters - UIxFilterEditor */
 "Filter name:" = "Nombre del filtro:";

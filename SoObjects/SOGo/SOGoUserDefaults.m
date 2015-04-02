@@ -1,6 +1,6 @@
 /* SOGoUserDefaults.m - this file is part of SOGo
  *
- * Copyright (C) 2009-2013 Inverse inc.
+ * Copyright (C) 2009-2014 Inverse inc.
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -198,7 +198,7 @@ NSString *SOGoWeekStartFirstFullWeek = @"FirstFullWeek";
                         @"SOGoLanguage", @"Language",
                         @"SOGoMailComposeMessageType", @"ComposeMessagesType",
                         @"SOGoSelectedAddressBook", @"SelectedAddressBook",
-                        @"SOGoMailMessageCheck", @"MessageCheck",
+                        @"SOGoRefreshViewCheck", @"RefreshViewCheck",
                         @"SOGoMailMessageForwarding", @"MessageForwarding",
                         @"SOGoMailSignature", @"MailSignature",
                         @"SOGoMailSignaturePlacement", @"SignaturePlacement",
@@ -488,14 +488,14 @@ NSString *SOGoWeekStartFirstFullWeek = @"FirstFullWeek";
   return [self stringForKey: @"SOGoSelectedAddressBook"];
 }
 
-- (void) setMailMessageCheck: (NSString *) newValue
+- (void) setRefreshViewCheck: (NSString *) newValue
 {
-  [self setObject: newValue forKey: @"SOGoMailMessageCheck"];
+  [self setObject: newValue forKey: @"SOGoRefreshViewCheck"];
 }
 
-- (NSString *) mailMessageCheck
+- (NSString *) refreshViewCheck
 {
-  return [self stringForKey: @"SOGoMailMessageCheck"];
+  return [self stringForKey: @"SOGoRefreshViewCheck"];
 }
 
 - (void) setMailComposeMessageType: (NSString *) newValue
@@ -508,7 +508,7 @@ NSString *SOGoWeekStartFirstFullWeek = @"FirstFullWeek";
   return [self stringForKey: @"SOGoMailComposeMessageType"];
 }
 
-- (void) setMailDisplayRemoteInlineImages: (NSString *) newValue;
+- (void) setMailDisplayRemoteInlineImages: (NSString *) newValue
 {
   [self setObject: newValue forKey: @"SOGoMailDisplayRemoteInlineImages"];
 }
@@ -516,6 +516,23 @@ NSString *SOGoWeekStartFirstFullWeek = @"FirstFullWeek";
 - (NSString *) mailDisplayRemoteInlineImages;
 {
   return [self stringForKey: @"SOGoMailDisplayRemoteInlineImages"];
+}
+
+- (void) setMailAutoSave: (NSString *) newValue
+{
+  [self setObject: newValue forKey: @"SOGoMailAutoSave"];
+}
+
+- (NSString *) mailAutoSave
+{
+  NSString *s;
+
+  s = [self stringForKey: @"SOGoMailAutoSave"];
+
+  if ([s intValue] == 0)
+    s = @"5";
+  
+  return s;
 }
 
 - (void) setMailMessageForwarding: (NSString *) newValue

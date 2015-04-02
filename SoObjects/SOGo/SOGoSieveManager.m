@@ -1,6 +1,6 @@
 /* SOGoSieveManager.m - this file is part of SOGo
  *
- * Copyright (C) 2010-2014 Inverse inc.
+ * Copyright (C) 2010-2015 Inverse inc.
  *
  * Author: Inverse <info@inverse.ca>
  *
@@ -31,6 +31,7 @@
 #import <SOGo/SOGoDomainDefaults.h>
 #import <SOGo/SOGoUser.h>
 
+#import <NGExtensions/NSObject+Logs.h>
 #import <NGStreams/NGInternetSocketAddress.h>
 #import <NGImap4/NGSieveClient.h>
 
@@ -717,7 +718,7 @@ static NSString *sieveScriptName = @"sogo";
   client = [[NGSieveClient alloc] initWithURL: url];
 
   if (!client) {
-    NSLog(@"Sieve connection failed on %@", [url description]);
+    [self errorWithFormat: @"Sieve connection failed on %@", [url description]];
     return nil;
   }
 
@@ -738,19 +739,19 @@ static NSString *sieveScriptName = @"sogo";
 
   if (!connected)
     {
-      NSLog(@"Sieve connection failed on %@", [url description]);
+      [self errorWithFormat: @"Sieve connection failed on %@", [url description]];
       return nil;
     }
 
   if (![[result valueForKey:@"result"] boolValue] && !theUsername && !thePassword) {
-    NSLog(@"failure. Attempting with a renewed password (no authname supported)");
+    [self logWithFormat: @"failure. Attempting with a renewed password (no authname supported)"];
     password = [theAccount imap4PasswordRenewed: YES];
     result = [client login: login  password: password];
   }
 
   if (![[result valueForKey:@"result"] boolValue]) {
-    NSLog(@"Could not login '%@' on Sieve server: %@: %@",
-	  login, client, result);
+    [self logWithFormat: @"Could not login '%@' on Sieve server: %@: %@",
+	  login, client, result];
     [client closeConnection];
     return nil;
   }
@@ -823,7 +824,7 @@ static NSString *sieveScriptName = @"sogo";
     }
   else
     {
-      NSLog(@"Sieve generation failure: %@", [self lastScriptError]);
+      [self errorWithFormat: @"Sieve generation failure: %@", [self lastScriptError]];
       [client closeConnection];
       return NO;
     }
@@ -834,13 +835,16 @@ static NSString *sieveScriptName = @"sogo";
 
   if (values && [[values objectForKey: @"enabled"] boolValue])
     {
+      NSMutableString *vacation_script;
       NSArray *addresses;
       NSString *text;
-      BOOL ignore;
+      
+      BOOL ignore, alwaysSend;
       int days, i;
-            
+      
       days = [[values objectForKey: @"daysBetweenResponse"] intValue];
       addresses = [values objectForKey: @"autoReplyEmailAddresses"];
+      alwaysSend = [[values objectForKey: @"alwaysSend"] boolValue];
       ignore = [[values objectForKey: @"ignoreLists"] boolValue];
       text = [values objectForKey: @"autoReplyText"];
       b = YES;
@@ -848,28 +852,38 @@ static NSString *sieveScriptName = @"sogo";
       if (days == 0)
         days = 7;
 
+      vacation_script = [NSMutableString string];
+      
       [req addObjectUniquely: @"vacation"];
 
       // Skip mailing lists
       if (ignore)
-        [script appendString: @"if allof ( not exists [\"list-help\", \"list-unsubscribe\", \"list-subscribe\", \"list-owner\", \"list-post\", \"list-archive\", \"list-id\", \"Mailing-List\"], not header :comparator \"i;ascii-casemap\" :is \"Precedence\" [\"list\", \"bulk\", \"junk\"], not header :comparator \"i;ascii-casemap\" :matches \"To\" \"Multiple recipients of*\" ) {"];
+        [vacation_script appendString: @"if allof ( not exists [\"list-help\", \"list-unsubscribe\", \"list-subscribe\", \"list-owner\", \"list-post\", \"list-archive\", \"list-id\", \"Mailing-List\"], not header :comparator \"i;ascii-casemap\" :is \"Precedence\" [\"list\", \"bulk\", \"junk\"], not header :comparator \"i;ascii-casemap\" :matches \"To\" \"Multiple recipients of*\" ) {"];
       
-      [script appendFormat: @"vacation :days %d :addresses [", days];
+      [vacation_script appendFormat: @"vacation :days %d :addresses [", days];
 
       for (i = 0; i < [addresses count]; i++)
         {
-          [script appendFormat: @"\"%@\"", [addresses objectAtIndex: i]];
+          [vacation_script appendFormat: @"\"%@\"", [addresses objectAtIndex: i]];
 	  
           if (i == [addresses count]-1)
-            [script appendString: @"] "];
+            [vacation_script appendString: @"] "];
           else
-            [script appendString: @", "];
+            [vacation_script appendString: @", "];
         }
       
-      [script appendFormat: @"text:\r\n%@\r\n.\r\n;\r\n", text];
+      [vacation_script appendFormat: @"text:\r\n%@\r\n.\r\n;\r\n", text];
       
       if (ignore)
-        [script appendString: @"}\r\n"];
+        [vacation_script appendString: @"}\r\n"];
+
+      //
+      // See http://sogo.nu/bugs/view.php?id=2332 for details
+      //
+      if (alwaysSend)
+        [script insertString: vacation_script  atIndex: 0];
+      else
+        [script appendString: vacation_script];
     }
 
 
@@ -913,7 +927,7 @@ static NSString *sieveScriptName = @"sogo";
   result = [client deleteScript: sieveScriptName];
   
   if (![[result valueForKey:@"result"] boolValue]) {
-    NSLog(@"WARNING: Could not delete Sieve script - continuing...: %@", result);
+    [self logWithFormat: @"WARNING: Could not delete Sieve script - continuing...: %@", result];
   }
 
   // We put and activate the script only if we actually have a script
@@ -923,14 +937,14 @@ static NSString *sieveScriptName = @"sogo";
       result = [client putScript: sieveScriptName  script: script];
       
       if (![[result valueForKey:@"result"] boolValue]) {
-        NSLog(@"Could not upload Sieve script: %@", result);
+        [self logWithFormat: @"Could not upload Sieve script: %@", result];
         [client closeConnection];	
         return NO;
       }
       
       result = [client setActiveScript: sieveScriptName];
       if (![[result valueForKey:@"result"] boolValue]) {
-        NSLog(@"Could not enable Sieve script: %@", result);
+        [self logWithFormat: @"Could not enable Sieve script: %@", result];
         [client closeConnection];
         return NO;
       }

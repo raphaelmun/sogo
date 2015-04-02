@@ -40,6 +40,11 @@
           protectedBy = "View";
           pageName    = "UIxCalMainView";
         };
+        printView = {
+          protectedBy = "<public>";
+          pageName    = "UIxCalViewPrint";
+          actionClass = "UIxCalViewPrint";
+        };
         addWebCalendar = {
           protectedBy = "View";
           actionClass = "UIxCalMainActions";
@@ -88,6 +93,11 @@
           protectedBy = "View";
           actionClass = "UIxCalListingActions";
           actionName = "tasksList";
+        };
+        activeTasks = {
+          protectedBy = "View";
+          actionClass = "UIxCalListingActions";
+          actionName = "activeTasks";
         };
         dayview = {
           protectedBy = "View";
@@ -231,6 +241,11 @@
           pageName    = "UIxAppointmentEditor"; 
           actionName  = "save";
         };
+        rsvpAppointment = {
+          protectedBy = "RespondToComponent";
+          pageName    = "UIxAppointmentEditor"; 
+          actionName  = "rsvp";
+        };
         saveAsAppointment = {
           protectedBy = "ModifyComponent";
           pageName    = "UIxAppointmentEditor"; 
@@ -245,31 +260,6 @@
           protectedBy = "ViewAllComponent";
           actionClass = "UIxComponentEditor";
           actionName  = "raw";
-        };
-        accept = { 
-          protectedBy = "RespondToComponent";
-          pageName    = "UIxAppointmentEditor"; 
-          actionName  = "accept";
-        };
-        decline = { 
-          protectedBy = "RespondToComponent";
-          pageName    = "UIxAppointmentEditor"; 
-          actionName  = "decline";
-        };
-        delegate = {
-          protectedBy = "RespondToComponent";
-          pageName = "UIxAppointmentEditor";
-          actionName  = "delegate";
-        };
-        tentative = { 
-          protectedBy = "RespondToComponent";
-          pageName    = "UIxAppointmentEditor"; 
-          actionName  = "tentative";
-        };
-        needsaction = { 
-          protectedBy = "RespondToComponent";
-          pageName    = "UIxAppointmentEditor"; 
-          actionName  = "needsAction";
         };
         adjust = {
           protectedBy = "ModifyComponent";
@@ -388,6 +378,11 @@
           protectedBy = "ModifyComponent";
           pageName    = "UIxTaskEditor"; 
           actionName  = "save";
+        };
+        delete = {
+          protectedBy = "Delete Object";
+          pageName    = "UIxOccurenceDialog";
+          actionName  = "delete";
         };
       };
     };

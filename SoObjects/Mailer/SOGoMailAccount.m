@@ -40,6 +40,7 @@
 #import <NGImap4/NGImap4Connection.h>
 #import <NGImap4/NGImap4Client.h>
 #import <NGImap4/NGImap4Context.h>
+#import <NGImap4/NSString+Imap4.h>
 
 #import <SOGo/NSArray+Utilities.h>
 #import <SOGo/NSString+Utilities.h>
@@ -60,6 +61,8 @@
 #import "SOGoUser+Mailer.h"
 
 #import "SOGoMailAccount.h"
+#import <Foundation/NSProcessInfo.h>
+
 
 #define XMLNS_INVERSEDAV @"urn:inverse:params:xml:ns:inverse-dav"
 
@@ -658,6 +661,76 @@ static NSString *inboxFolderName = @"INBOX";
 
   return password;
 }
+
+
+- (NSDictionary *) imapFolderGUIDs
+{
+  NSDictionary *result, *nresult, *namespaceDict;
+  NSMutableDictionary *folders;
+  NGImap4Client *client;
+  NSArray *folderList;
+  NSEnumerator *e;
+  NSString *guid;
+  id object;
+  
+  BOOL hasAnnotatemore;
+
+  folderList = [self allFolderPaths];
+
+  folders = [NSMutableDictionary dictionary];
+
+  client = [[self imap4Connection] client];
+  namespaceDict = [client namespace];
+  hasAnnotatemore = [self hasCapability: @"annotatemore"];
+
+  if (hasAnnotatemore)
+    result = [client annotation: @"*"  entryName: @"/comment" attributeName: @"value.priv"];
+  else
+    result = [client lstatus: @"*" flags: [NSArray arrayWithObjects: @"x-guid", nil]];
+  
+  e = [folderList objectEnumerator];
+  
+  while ((object = [e nextObject]))
+    {
+      if (hasAnnotatemore)
+        guid = [[[[result objectForKey: @"FolderList"] objectForKey: [object substringFromIndex: 1]] objectForKey: @"/comment"] objectForKey: @"value.priv"];
+      else
+        guid = [[[result objectForKey: @"status"] objectForKey: [object substringFromIndex: 1]] objectForKey: @"x-guid"];
+      
+      if (!guid)
+        {
+          // Don't generate a GUID for "Other users" and "Shared" namespace folders - user foldername instead
+          if ([[object substringFromIndex: 1] isEqualToString: [[[[namespaceDict objectForKey: @"other users"] lastObject] objectForKey: @"prefix"] substringFromIndex: 1]] ||
+              [[object substringFromIndex: 1] isEqualToString: [[[[namespaceDict objectForKey: @"shared"] lastObject] objectForKey: @"prefix"] substringFromIndex: 1]])
+            {
+              [folders setObject: [NSString stringWithFormat: @"folder%@", [object substringFromIndex: 1]] forKey: [NSString stringWithFormat: @"folder%@", [object substringFromIndex: 1]]];
+              continue;
+            }
+          
+          // if folder doesn't exists - ignore it
+          nresult = [client status: [object substringFromIndex: 1]
+                             flags: [NSArray arrayWithObject: @"UIDVALIDITY"]];
+          if (![[nresult valueForKey: @"result"] boolValue])
+            continue;
+          
+          if (hasAnnotatemore)
+            {
+              guid = [[NSProcessInfo processInfo] globallyUniqueString];
+              nresult = [client annotation: [object substringFromIndex: 1] entryName: @"/comment" attributeName: @"value.priv" attributeValue: guid];
+            }
+          
+          // setannotation failed or annotatemore is not available
+          if (![[nresult objectForKey: @"result"] boolValue] || !hasAnnotatemore)
+            guid = [NSString stringWithFormat: @"%@", [object substringFromIndex: 1]];
+        }
+      
+      [folders setObject: [NSString stringWithFormat: @"folder%@", guid] forKey: [NSString stringWithFormat: @"folder%@", [object substringFromIndex: 1]]];
+      
+    }
+  
+  return folders;
+}
+
 
 /* name lookup */
 
